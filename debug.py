@@ -5,7 +5,7 @@
 
 try:
     import getpass, os
-    developers = [ 'painter', 'painter1' ]
+    developers = [ 'mauzey1' ]
     if (getpass.getuser() in developers and os.environ.get("PY_DEBUG_EXCEP",True)!='False')\
             or os.environ.get("PY_DEBUG_EXCEP",False)=='True':
         import sys

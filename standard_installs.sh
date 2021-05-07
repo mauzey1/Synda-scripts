@@ -4,7 +4,7 @@
 # also everything of day or 6hr frequency (not 6hrPlev) for selected nodes,
 # and all the "high priority" CMIP6 data.
 
-source /home/painter/.bash_profile
+source /home/mauzey1/.bash_profile
 
 export LOGFILE=/var/log/synda/install/install-`date --iso-8601=date`.log
 #...was export LOGFILE=/var/log/synda/install/install.log
@@ -92,13 +92,13 @@ echo y | synda install -i --timestamp_right_boundary $TODATE -s ~/selection_file
 
 # mark obsolete files
 echo `date --iso-8601=minutes` "marking obsolete files" >> $LOGFILE 2>&1
-sqlite3 /var/lib/synda/sdt/sdt.db ".read /home/painter/scripts/obsolete.sql" >> $LOGFILE 2>&1
+sqlite3 /var/lib/synda/sdt/sdt.db ".read /home/mauzey1/scripts/obsolete.sql" >> $LOGFILE 2>&1
 
 # End
 echo `date --iso-8601=minutes` "end standard_installs_v3.sh" >> $LOGFILE 2>&1
 echo >> $LOGFILE 2>&1
 
 #echo "extra installs..."
-#/home/painter/scripts/extra_installs.sh
+#/home/mauzey1/scripts/extra_installs.sh
 
 

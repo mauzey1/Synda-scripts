@@ -6,7 +6,7 @@
 # This script is suitable for being called by cron.
 # The use of systemctl works for Red Hat 7, not Red Hat 6.
 
-source /home/painter/.bash_profile
+source /home/mauzey1/.bash_profile
 
 if pgrep -f sddaemon > /dev/null 2>&1
   then
