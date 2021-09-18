@@ -189,17 +189,25 @@ def move_and_record( three_paths, suffix ):
                 moved_datasets.append( (vnh,epbv) )
             except Exception as e:
                 logging.warning( "could not move %s to %s due to %s" % (scrv,epbv,e) )
-                if (os.path.isdir(epbv) and len(os.listdir(epbv))>0 and (
-                        not os.path.isdir(scrv)) or len(os.listdir(scrv))==0):
+                
+                src_data_exists = False
+                dst_data_exists = False
+                if os.path.isdir(scrv):
+                    if len(os.listdir(scrv))>0:
+                        src_data_exists = True
+                if os.path.isdir(epbv):
+                    if len(os.listdir(epbv))>0:
+                        dst_data_exists = True
+
+                if dst_data_exists and not src_data_exists:
                     # data have already been moved; nothing left here
                     moved_datasets.append( (vnh,epbv) )
                     logging.info("data is already in %s" % epbv)
-                elif os.path.isdir(epbv) and len(os.listdir(epbv))>0 and\
-                     os.path.isdir(scrv) and len(os.listdir(scrv))>0:
+                elif dst_data_exists and src_data_exists:
                     # data in both directories.  Probably the dataset was changed
                     split_datasets.append( vnh )
                     logging.info("data is in both %s and %s" % (scrv,epbv) )
-                elif not os.path.isdir(scrv):
+                elif not src_data_exists:
                     # The source doesn't exist, and it hasn't already been (substantively) moved.
                     nosrc_datasets.append( vnh )
                     logging.info("source %s does not exist" % scrv )
