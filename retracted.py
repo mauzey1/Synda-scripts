@@ -130,10 +130,10 @@ def get_retracted( prefix,
     for N in range(npages):
         path = prefix+str(starting_offset)
         num_lines, numFound = one_query( cmd, path )
+        numFoundmax = max( numFoundmax, numFound )
         if num_lines==0:
             # No more datasets to be found
             break
-        numFoundmax = max( numFoundmax, numFound )
         try:
             Nchanges = retract_path(path, test)
         except Exception as e:
@@ -188,10 +188,10 @@ def get_some_retracted_paginated( prefix, constraints='', test=True ):
         num_lines, numFound = one_query( cmd, path )
         logging.info( "get_some_retracted_paginated; constraints=%s, num_lines=%s, numFound=%s"%
                     (constraints, num_lines, numFound ) )
+        numFoundMax = max( numFoundMax, numFound )
         if num_lines==0:
             # No more datasets to be found
             break
-        numFoundMax = max( numFoundMax, numFound )
         try:
             Nchanges = retract_path(path, test)
         except Exception as e:
