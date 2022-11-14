@@ -266,7 +266,11 @@ def get_retracted_multi_facets( prefix, fcts, constraints='', complement_query=T
             else:
                 return get_some_retracted_paginated( prefix, constraints, test )
         except numFoundException as e:
-            raise e
+            # There are too many query results; we have to constrain another facet.
+            if len(fcts)>0:
+                pass
+            else:
+                raise e
     facet = fcts[0][0]
     facets = fcts[0][1]
     numFoundall = 0
