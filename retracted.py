@@ -39,14 +39,38 @@ def save_starting_offset( starting_offset ):
     with open(foffset,'w') as f:
         f.write( str(starting_offset) )
 
-def one_query( cmd, starting_offset, path, test ):
-    """Does one query specified by cmd, starting at the specified offset.
+def retract_path(path, test):
+    """Retract datasets listed in the path text file retrieved by one_query.
+    If this is a test of the query system, and the database is not to be referenced.
+    Returns the number of datasets which were newly marked as retracted.
+    """
+    # Record the retracted datasets in the database:
+    Nchanges = 0
+    if not test:
+        try:
+            Nchanges = status_retracted.status_retracted( path+'.txt' )
+            # ... this defaults to suffix='retracted'
+        except Exception as e:
+            # database access errors are what I want to be prepared for, but I'm
+            # catching all exceptions here
+            logging.error("Failed with exception %s" % e.__repr__() )
+            logging.error("We can try again some day.")
+            #   ... For AssertionError, e or str(e) prints as ''.
+            # But an error here usually is a "database is locked".  Rather than do the right
+            # thing, I'll do the simplest to code:  wait 10 minutes and go on.  Maybe we'll
+            # succeed the next time status_retracted is called on this data.
+            # The '-1' is a flag to tell the caller to leave starting_offset unchanged so the
+            # next run will retry from the same point.
+            time.sleep(600)
+            return 0
+    return Nchanges
+
+def one_query( cmd, path ):
+    """Does one query specified by cmd.
     Returns the number of datasets received in the response, which can be used
-    to compute the next offset.  Also returns numFound, extracted from the response; and
-    Nchanges, the number of datasets which were newly marked as retracted.
+    to compute the next offset.  Also returns numFound, extracted from the response.
     The other arguments are a file path for the json input file and txt output file (without
-    the '.json' and '.txt' suffixes) , and a flag which is True iff
-    this is a test of the query system, and the database is not to be referenced."""
+    the '.json' and '.txt' suffixes)."""
 
     logging.info( "cmd=%s" % cmd )
     wget_out = "undefined wget_out"
@@ -83,30 +107,11 @@ def one_query( cmd, starting_offset, path, test ):
     with open(path+'.txt') as fids: num_lines = len(fids.readlines())
     # ... a terse way to count lines, memory hog ok because file is <10K lines.
     if num_lines<numFound:
-        logging.info( "one_query numFound=%s>num_lines=%s from %s !" % (numFound,num_lines,path) )
-        raise numFoundException
-
-    # Record the retracted datasets in the database:
-    if not test:
-        try:
-            Nchanges = status_retracted.status_retracted( path+'.txt' )
-            # ... this defaults to suffix='retracted'
-        except Exception as e:
-            # database access errors are what I want to be prepared for, but I'm
-            # catching all exceptions here
-            logging.error("Failed with exception %s" % e.__repr__() )
-            logging.error("We can try again some day.")
-            #   ... For AssertionError, e or str(e) prints as ''.
-            # But an error here usually is a "database is locked".  Rather than do the right
-            # thing, I'll do the simplest to code:  wait 10 minutes and go on.  Maybe we'll
-            # succeed the next time status_retracted is called on this data.
-            # The '-1' is a flag to tell the caller to leave starting_offset unchanged so the
-            # next run will retry from the same point.
-            time.sleep(600)
-            return -1, -1, 0
+        logging.warning( "one_query numFound=%s>num_lines=%s from %s !" % (numFound,num_lines,path) )
 
     logging.info( "num_lines=%s" % num_lines )
-    return num_lines, numFound, Nchanges
+
+    return num_lines, numFound
 
 def get_retracted( prefix,
                    starting_offset=0, npages=20, test=False ):
@@ -124,15 +129,17 @@ def get_retracted( prefix,
     Nchangesall = 0
     for N in range(npages):
         path = prefix+str(starting_offset)
-        num_lines, numFound, Nchanges = one_query( cmd, starting_offset, path, test )
-        numFoundmax = max( numFoundmax, numFound )
-        Nchangesall += Nchanges
-        if num_lines == -1:
-            # flag to retry
-            continue
+        num_lines, numFound = one_query( cmd, path )
         if num_lines==0:
             # No more datasets to be found
             break
+        numFoundmax = max( numFoundmax, numFound )
+        try:
+            Nchanges = retract_path(path, test)
+        except Exception as e:
+            # Flag to retry
+            continue
+        Nchangesall += Nchanges
         starting_offset += num_lines
         logging.info( "next_offset=%s" % starting_offset )
         if not test:
@@ -153,14 +160,51 @@ def get_some_retracted( prefix, constraints='', test=True ):
           " 'https://esgf-node.llnl.gov/esg-search/search?project=CMIP6&retracted=true&" +\
           constraints +\
           "&fields=instance_id&replica=false&limit=10000'"
-    num_lines, numFound, Nchanges = one_query( cmd, 0, path, test )
+    num_lines, numFound = one_query( cmd, path )
     logging.info( "get_some_retracted; constraints=%s, num_lines=%s, numFound=%s"%
                   (constraints, num_lines, numFound ) )
     if num_lines<numFound:
-        logging.info( "get_some_retracted numFound=%s>num_lines=%s !" % (numFound,num_lines) )
+        logging.warning( "get_some_retracted numFound=%s>num_lines=%s !" % (numFound,num_lines) )
         raise numFoundException
     else:
+        Nchanges = retract_path(path, test)
         return numFound, Nchanges
+
+def get_some_retracted_paginated( prefix, constraints='', test=True ):
+    """Like get_some_retracted, but the query _is_ paginated.
+    """
+    constr2 = constraints.replace('!=','=NOT')
+    constr3 = '_'.join([con.split('=')[1] for con in constr2.split('&') if con.find('=')>=0])
+    numFoundMax = 0
+    Nchangesall = 0
+    starting_offset = 0
+    page = 0
+    while True:
+        path = prefix + constr3 + '.' + str(page)
+        cmd = "wget -O "+path+'.json'+\
+            " 'https://esgf-node.llnl.gov/esg-search/search?project=CMIP6&retracted=true&" +\
+            constraints +\
+            "&fields=instance_id&replica=false&limit=10000&offset=%s'"%(starting_offset)
+        num_lines, numFound = one_query( cmd, path )
+        logging.info( "get_some_retracted_paginated; constraints=%s, num_lines=%s, numFound=%s"%
+                    (constraints, num_lines, numFound ) )
+        if num_lines==0:
+            # No more datasets to be found
+            break
+        numFoundmax = max( numFoundmax, numFound )
+        try:
+            Nchanges = retract_path(path, test)
+        except Exception as e:
+            # Flag to retry
+            continue
+        Nchangesall += Nchanges
+        starting_offset += num_lines
+        if starting_offset >= numFoundMax:
+            # Last page reached
+            break
+        page += 1
+    
+    return numFoundMax, Nchangesall
 
 def get_retracted_facet( prefix, facet, facets, constraint='', test=True ):
     """Like get_retracted, but rather than do a paginated query this queries separately
@@ -217,13 +261,12 @@ def get_retracted_multi_facets( prefix, fcts, constraints='', complement_query=T
     elif len(constraints)>0:
         try:
             # Maybe the constraints are already enough to keep the query results small enough.
-            return get_some_retracted( prefix, constraints, test )
-        except numFoundException as e:
-            # There are too many query results; we have to constrain another facet.
             if len(fcts)>0:
-                pass
+                return get_some_retracted( prefix, constraints, test )
             else:
-                raise e
+                return get_some_retracted_paginated( prefix, constraints, test )
+        except numFoundException as e:
+            raise e
     facet = fcts[0][0]
     facets = fcts[0][1]
     numFoundall = 0
