@@ -191,7 +191,7 @@ def get_some_retracted_paginated( prefix, constraints='', test=True ):
         if num_lines==0:
             # No more datasets to be found
             break
-        numFoundmax = max( numFoundmax, numFound )
+        numFoundMax = max( numFoundMax, numFound )
         try:
             Nchanges = retract_path(path, test)
         except Exception as e:
