@@ -38,22 +38,23 @@ def finish():
     conn.commit()
     conn.close()
 
-def mapfile_dates_available( only_after='000000' ):
+def mapfile_dates_available( only_after='00000000' ):
     """This function looks in /p/user_pub/publish-queue/CMIP6-map-tarballs/ for file names of the
-    form "mapfiles-NNNNNN.tgz" where NNNNNN is a 6-digit date.  It returns a list of such dates.
-    Optionally you can provide an argument only_after, which is a 6-digit date.  Then the list will
+    form "mapfiles-NNNNNNNN" where NNNNNNNN is a 8-digit date.  It returns a list of such dates.
+    Optionally you can provide an argument only_after, which is a 8-digit date.  Then the list will
     include only dates after only_after, and mapfile_dates_available(only_after)[0] will be the
-    first 6-digit date after only_after, if there is one."""
+    first 8-digit date after only_after, if there is one."""
     files = os.listdir("/p/user_pub/publish-queue/CMIP6-map-tarballs/")
-    files = [ f for f in files if ( f[0:9]=='mapfiles-' and f[15:]=='.tgz' ) ]
-    dates = [ f[9:15] for f in files if f[9:15]>only_after ]
+    # exclude older 6-digit-date files of the format mapfiles-NNNNNN.tgz
+    files = [ f for f in files if ( len(f) == 17 and f[0:9]=='mapfiles-' and f[-4:] != '.tgz') ]
+    dates = [ f[9:17] for f in files if f[9:17]>only_after ]
     # Exclude dates like '2-5-19', a format used only in older files:
     dates = [ d for d in dates if d.find('-')<0 ]
     dates.sort()
     return dates
 
 def next_suffix():
-    """Returns the next suffix, used to identify the input file mapfile_SUFFIX.tgz and the output
+    """Returns the next suffix, used to identify the input file mapfile_SUFFIX and the output
     file files_not_found_SUFFIX."""
     last_suffix_f = '/p/css03/scratch/publishing/CMIP6_last_suffix'
     with open(last_suffix_f,'r') as f:
@@ -403,7 +404,7 @@ if __name__ == '__main__':
     p.add_argument( "--dryrun", required=False, action="store_true" )
     p.add_argument( "--suffix", required=False,
                     help="suffix of mapfiles file in /p/user_pub/publish_queue/CMIP6-map-tarballs"+\
-                    "e.g. 190418 is the suffix of mapfiles-190418.tgz",
+                    "e.g. 20210527 is the suffix of mapfiles-20210527",
                     default=None )
     p.add_argument( "--published_datasets", required=False,
                     help="file containing a list of published datasets",
@@ -431,7 +432,7 @@ if __name__ == '__main__':
     published_datasets = args.published_datasets
     if published_datasets is None:
         published_datasets = "/p/user_pub/publish-queue/CMIP6-map-tarballs/mapfiles-" +\
-                             suffix + ".tgz"
+                             suffix
 
     files_not_found = args.files_not_found
     if files_not_found is None:
