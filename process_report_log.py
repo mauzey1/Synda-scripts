@@ -10,6 +10,8 @@
 import re
 import json
 
+# Log entries are composed of a timestamp line followed by a line for the command 'synda queue'.
+# The output of 'synda queue' appears between the "status count size" header and a call to the script synda-perf.py.
 timestamp_pattern = r"""(\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}Z)\nsynda queue\n(.*?)status\s+count\s+size\n(.*?)/scripts/synda-perf.py"""
 
 log_file = "/var/log/synda/reports.log"
@@ -23,6 +25,9 @@ if log_entries is not None:
     for l in log_entries:
         timestamp = l[0]
         synda_section = l[2]
+
+        # 'synda queue' reports the file count and storage size (in human-readable decimal units)
+        # per download status
         synda_queue_pattern = r"""(.*?)\s+(.*?)\s+(.*? (Byte|Bytes|kB|MB|GB|TB|PB|EB|ZB|YB))\n"""
         synda_queue_match = re.findall(synda_queue_pattern, synda_section, re.DOTALL|re.MULTILINE)
 
