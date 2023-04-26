@@ -5,6 +5,6 @@ LOG_DIR=/var/log/synda/daemon/
 if synda daemon status | grep -q 'Daemon not running'
   then
     :
-    echo `date` starting daemon >> $LOG_DIR/test_daemon_start.log 2>&1
-    synda daemon start >> $LOG_DIR/test_daemon_start.log 2>&1
+    echo `date` starting daemon >> $LOG_DIR/daemon_start.log 2>&1
+    synda daemon start >> $LOG_DIR/daemon_start.log 2>&1
   fi
