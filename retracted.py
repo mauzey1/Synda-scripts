@@ -100,7 +100,7 @@ def one_query( cmd, path ):
     # example of nF:  'numFound="132311" start="0" '
     nF = nFstr[nFstr.find('numFound'):nFstr.find('maxScore')]
     # example of numFound (an int):  132311
-    numFound = map(int, re.findall(r'\d+',nF) )[0]
+    numFound = list(map(int, re.findall(r'\d+',nF) ))[0]
     logging.info( nF )
     cmd = 'grep \\"instance_id\\" '+path+'.json > '+path+'.txt'
     sp.call(cmd, shell=True)
@@ -392,7 +392,7 @@ if __name__ == '__main__':
     elif chunking=='std3':
         numFound, Nchanges = get_retracted_std3( prefix, False, test )
     else:
-        print "bad argument --chunking=",chunking,"should be 'paginated' or 'data_node' or 'std3'"
+        print("bad argument --chunking=",chunking,"should be 'paginated' or 'data_node' or 'std3'")
         logging.error(
             "bad argument --chunking=",chunking,"should be 'paginated' or 'data_node' or 'std3'")
     logging.info( "End of retracted.py.  numFound=%s, Nchanges=%s" % (numFound, Nchanges) )
