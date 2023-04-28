@@ -302,8 +302,8 @@ if __name__ == '__main__':
             # sys.argv[1] should be or the name of a file listing retracted datasets
             status_retracted( sys.argv[1], suffix )
     else:
-        print "please provide an input file, containing a list of retracted datasets"
-        print "Or start with the keyword 'file', and continue with the name of a file"+\
-            "containing a list of retracted files"
-        print "Optionally, you can supply a final argument, the suffix to be added to"+\
-            " status names."
+        print("please provide an input file, containing a list of retracted datasets")
+        print("Or start with the keyword 'file', and continue with the name of a file"+\
+            "containing a list of retracted files")
+        print("Optionally, you can supply a final argument, the suffix to be added to"+\
+            " status names.")
