@@ -85,16 +85,8 @@ def file_retracted_status( file_id, suffix='retracted' ):
     elif status=='running':
         # This is the most likely of the cases where another process wants to change the status too.
         raise Exception("running file, try again later")
-    elif status[0:4]=='done':
-        newstatus = 'done,'+suffix
-    elif status[0:5]=='error' or status=='waiting' or status=='obsolete' or status[0]=='_':
-        # All of these are data we don't have.  A status beginning with '_' is a temporary
-        # status set manually.
-        newstatus = suffix
-    elif status[0:9]=='published':
-        newstatus = 'published,'+suffix
     else:
-        newstatus = status+','+suffix
+        newstatus = suffix
     if status==newstatus:
         #print "From file_id", file_id, "results=", results, "status=",status
         return
