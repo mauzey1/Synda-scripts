@@ -347,7 +347,7 @@ def get_retracted_data_node( prefix, test=True ):
     data_nodes = ["esgf-data3.ceda.ac.uk"]
     return get_retracted_facet( prefix, 'data_node', data_nodes, '', test )
 
-def get_retracted_data_node_orig( prefix="/home/mauzey1/retracted/some-retracted-", test=True ):
+def get_retracted_data_node_orig( prefix="/home/syndausr/retracted/some-retracted-", test=True ):
     """Like get_retracted, but rather than do a paginated query this queries separately
     for each in a list of data_nodes.
     Returns numFound.
@@ -367,7 +367,7 @@ if __name__ == '__main__':
         description="Query the LLNL index node for retracted datasets." )
     p.add_argument( "--starting_offset", dest="starting_offset", required=False, default=None )
     p.add_argument( "--prefix", dest="prefix", required=False,
-                    default="/home/mauzey1/retracted/all-retracted-" )
+                    default="/home/syndausr/retracted/all-retracted-" )
     p.add_argument( "--npages", dest="npages", required=False, type=int, default=20 )
     p.add_argument('--test', dest='test', action='store_true')
     p.add_argument('--no-test', dest='test', action='store_false')

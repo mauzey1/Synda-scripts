@@ -35,7 +35,7 @@ def setup():
         timeout = 12000  # in seconds; i.e. 200 minutes
         conn = sqlite3.connect( '/var/lib/synda/sdt/sdt.db', timeout )
         # test on a temporary copy of the database:
-        #conn = sqlite3.connect( '/home/mauzey1/db/sdt.db', timeout )
+        #conn = sqlite3.connect( '/home/syndausr/db/sdt.db', timeout )
 
 def finish():
     """Closes connections to databases, etc."""
