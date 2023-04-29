@@ -95,7 +95,7 @@ def run_by_date( ending ):
         beginning = f.readline().strip()
     logging.info( "beginning=%s, ending=%s" % (beginning, ending) )
     if dryrun:
-        print "beginning=%s, ending=%s" % (beginning, ending)
+        print("beginning=%s, ending=%s" % (beginning, ending))
 
     # Get the new complete datasets from the database, and move them
     try:
@@ -130,7 +130,7 @@ def run_by_date( ending ):
     # If we didn't get here, the next time-based run will use the old beginning and recompute
     # whatever was missed this time.
     if dryrun:
-        print "Normally would write",ending,"to",sincewhen
+        print("Normally would write",ending,"to",sincewhen)
     else:
         with open(sincewhen,'w') as f:
             f.write( ending )
@@ -179,7 +179,7 @@ def move_and_record( three_paths, suffix ):
     failed_datasets = []
     if dryrun:
         for scrv,vnh,epbv in three_paths:
-            print "would move",scrv,"to",epbv
+            print("would move",scrv,"to",epbv)
     else:
         for scrv,vnh,epbv in three_paths:
             try:
