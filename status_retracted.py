@@ -195,7 +195,7 @@ def dataset_retracted_status( dataset_fid, suffix='retracted' ):
     if len(results)==1:
         status = results[0][0]    # e.g. 'complete'
         if status.find(suffix)<0:
-            new_status = status + ','+suffix
+            new_status = suffix
             cmd = "UPDATE dataset SET status='%s' WHERE dataset_functional_id='%s'" %\
                   (new_status,dataset_fid)
             try:
