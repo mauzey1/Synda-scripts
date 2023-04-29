@@ -75,7 +75,7 @@ def one_query( cmd, path ):
     logging.info( "cmd=%s" % cmd )
     wget_out = "undefined wget_out"
     try:
-        wget_out = sp.check_output(cmd, shell=True, stderr=sp.STDOUT)
+        wget_out = str(sp.check_output(cmd, shell=True, stderr=sp.STDOUT))
         logging.info( "wget_out=%s" % wget_out )
     except Exception as e:
         logging.error( "one_query, wget exception, wget_out=%s" % wget_out )
