@@ -96,7 +96,7 @@ def one_query( cmd, path ):
     # BTW this is simpler but prints the whole numFound line: sp.call(cmd, shell=True)
     # example of nFstr:
     #  '<result name="response" numFound="132311" start="0" maxScore="1.0">\n'
-    nFstr = sp.Popen(cmd, shell=True, stdout=sp.PIPE).stdout.read()
+    nFstr = str(sp.Popen(cmd, shell=True, stdout=sp.PIPE).stdout.read())
     # example of nF:  'numFound="132311" start="0" '
     nF = nFstr[nFstr.find('numFound'):nFstr.find('maxScore')]
     # example of numFound (an int):  132311
