@@ -21,7 +21,7 @@ export PERF_END_DATE=`date '+%Y-%m-%dT%H:%M'`
 # daily at the same time every day, this is midnight to midnight:
 #export PERF_START_DATE=`date --date=yesterday '+%Y-%m-%dT00:00'`
 #export PERF_END_DATE=`date '+%Y-%m-%dT00:00'`
-export PERF="/home/mauzey1/scripts/synda-perf.py $PERF_START_DATE $PERF_END_DATE"
+export PERF="/home/syndausr/scripts/synda-perf.py $PERF_START_DATE $PERF_END_DATE"
 echo >> $LOGFILE
 echo $PERF >> $LOGFILE
 $PERF >> $LOGFILE 2>&1
@@ -29,7 +29,7 @@ $PERF >> $LOGFILE 2>&1
 echo >> $LOGFILE
 echo Installation summary: >> $LOGFILE 2>&1
 export INSTALLFILE=/var/log/synda/install/install-`date  --date=last-sunday --iso-8601=date`.log
-/home/mauzey1/scripts/count_installed.py $INSTALLFILE >> $LOGFILE 2>&1
+/home/syndausr/scripts/count_installed.py $INSTALLFILE >> $LOGFILE 2>&1
 
 echo >> $LOGFILE
 echo waiting file counts by data_node: >> $LOGFILE 2>&1
@@ -40,7 +40,7 @@ sqlite3 -separator ' | ' /var/lib/synda/sdt/sdt.db "SELECT data_node,COUNT(*) FR
 
 echo >> $LOGFILE
 echo transfer.log: >> $LOGFILE 2>&1
-/home/mauzey1/scripts/reports.py $PERF_START_DATE >> $LOGFILE 2>&1
+/home/syndausr/scripts/reports.py $PERF_START_DATE >> $LOGFILE 2>&1
 
 echo >> $LOGFILE
 echo last mark_published errors: >> $LOGFILE 2>&1
