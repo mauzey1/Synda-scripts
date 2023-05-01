@@ -164,20 +164,20 @@ def perf_data( start, stop, server, method='aggregate' ):
             
 if __name__ == '__main__':
     setup()
-    print "args=", sys.argv
+    print("args=", sys.argv)
     if len( sys.argv ) < 3:
-        print "provide start time, stop time, and server in the form of"
-        print " '2019-01-25 13:04' '2019-01-25 14:04' 'gsiftp://esgf1.umr-cnrm.fr'"
-        print " You can use a % wildcard character when specifying the server."
-        print " You can use a T instead of a space between the date and time."
+        print("provide start time, stop time, and server in the form of")
+        print(" '2019-01-25 13:04' '2019-01-25 14:04' 'gsiftp://esgf1.umr-cnrm.fr'")
+        print(" You can use a % wildcard character when specifying the server.")
+        print(" You can use a T instead of a space between the date and time.")
     else:
         if False:  # for tests:
             for method in ['aggregate','aggregate-crude','seqsize','arith','synda']:
                 rate,size= perf_data( sys.argv[1], sys.argv[2], sys.argv[3], method )
                 if rate is None:
-                    print "No data downloaded"
+                    print("No data downloaded")
                 else:
-                    print method, '	',rate, "MiB/s", size, "GiB"
+                    print(method, '	',rate, "MiB/s", size, "GiB")
         else:
             # Times with a T work better in scripts, e.g. '2019-01-25T13:04'.
             # The Synda database uses a space between the date and time, e.g.
@@ -190,18 +190,18 @@ if __name__ == '__main__':
                 server = '%'
             rate,spf,size,avgsize,Nfiles = perf_data( start, stop, server )
             if rate is None:
-                print "No data downloaded"
+                print("No data downloaded")
             else:
                 uhs = url_hdrs( start, stop, server )
                 uhs.sort()
-                print 'rate',rate, "MiB/s  Nfiles",Nfiles,"  size", size, "GiB", "avg size", avgsize, "MiB", uhs
+                print('rate',rate, "MiB/s  Nfiles",Nfiles,"  size", size, "GiB", "avg size", avgsize, "MiB", uhs)
                 if len(uhs)>1:
                     for uh in uhs:
                         rate,spf,size,avgsize,Nfiles = perf_data( start, stop, uh )
-                        print "rate {:6.2f}".format(rate),\
+                        print("rate {:6.2f}".format(rate),\
                             "MiB/s  Nfiles {:5d}".format(Nfiles),\
                             "  size {:8.2f}".format(size),\
-                            "GiB", "  avg size {:8.2f}".format(avgsize), "MiB", uh
+                            "GiB", "  avg size {:8.2f}".format(avgsize), "MiB", uh)
 
     finish()
 
