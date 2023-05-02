@@ -26,7 +26,7 @@ def tail(f, n):
         line = proc.stdout.readline()
         if not line:
             break
-        lines.append(line)
+        lines.append(line.decode("utf-8"))
     return lines
 
 def logsince( logfile, starttime, taillen=15123456 ):
