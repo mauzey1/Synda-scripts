@@ -4,7 +4,7 @@
 
 from datetime import datetime, timedelta
 from pprint import pprint
-import sys, os, pdb
+import sys, os, pdb, subprocess
 import debug
 
 global inst, scheme, TransferLOG, start_timeN
@@ -19,9 +19,14 @@ DiscoveryLOG = '/var/log/synda/sdt/discovery.log' # LLNL standard
 def tail(f, n):
     """runs the operating system's 'tail', probably faster than
     doing it in Python"""
-    stdin,stdout = os.popen2("tail -n "+str(n)+" "+f)
-    stdin.close()
-    lines = stdout.readlines(); stdout.close()
+    cmd = "tail -n %d %s"%(n,f)
+    proc = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE)
+    lines = []
+    while True:
+        line = proc.stdout.readline()
+        if not line:
+            break
+        lines.append(line)
     return lines
 
 def logsince( logfile, starttime, taillen=15123456 ):
