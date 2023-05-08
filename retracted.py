@@ -75,7 +75,7 @@ def one_query( cmd, path ):
     logging.info( "cmd=%s" % cmd )
     wget_out = "undefined wget_out"
     try:
-        wget_out = sp.check_output(cmd, shell=True, stderr=sp.STDOUT)
+        wget_out = str(sp.check_output(cmd, shell=True, stderr=sp.STDOUT))
         logging.info( "wget_out=%s" % wget_out )
     except Exception as e:
         logging.error( "one_query, wget exception, wget_out=%s" % wget_out )
@@ -96,11 +96,11 @@ def one_query( cmd, path ):
     # BTW this is simpler but prints the whole numFound line: sp.call(cmd, shell=True)
     # example of nFstr:
     #  '<result name="response" numFound="132311" start="0" maxScore="1.0">\n'
-    nFstr = sp.Popen(cmd, shell=True, stdout=sp.PIPE).stdout.read()
+    nFstr = str(sp.Popen(cmd, shell=True, stdout=sp.PIPE).stdout.read())
     # example of nF:  'numFound="132311" start="0" '
     nF = nFstr[nFstr.find('numFound'):nFstr.find('maxScore')]
     # example of numFound (an int):  132311
-    numFound = map(int, re.findall(r'\d+',nF) )[0]
+    numFound = list(map(int, re.findall(r'\d+',nF) ))[0]
     logging.info( nF )
     cmd = 'grep \\"instance_id\\" '+path+'.json > '+path+'.txt'
     sp.call(cmd, shell=True)
@@ -347,7 +347,7 @@ def get_retracted_data_node( prefix, test=True ):
     data_nodes = ["esgf-data3.ceda.ac.uk"]
     return get_retracted_facet( prefix, 'data_node', data_nodes, '', test )
 
-def get_retracted_data_node_orig( prefix="/home/mauzey1/retracted/some-retracted-", test=True ):
+def get_retracted_data_node_orig( prefix="/home/syndausr/retracted/some-retracted-", test=True ):
     """Like get_retracted, but rather than do a paginated query this queries separately
     for each in a list of data_nodes.
     Returns numFound.
@@ -367,7 +367,7 @@ if __name__ == '__main__':
         description="Query the LLNL index node for retracted datasets." )
     p.add_argument( "--starting_offset", dest="starting_offset", required=False, default=None )
     p.add_argument( "--prefix", dest="prefix", required=False,
-                    default="/home/mauzey1/retracted/all-retracted-" )
+                    default="/home/syndausr/retracted/all-retracted-" )
     p.add_argument( "--npages", dest="npages", required=False, type=int, default=20 )
     p.add_argument('--test', dest='test', action='store_true')
     p.add_argument('--no-test', dest='test', action='store_false')
@@ -392,7 +392,7 @@ if __name__ == '__main__':
     elif chunking=='std3':
         numFound, Nchanges = get_retracted_std3( prefix, False, test )
     else:
-        print "bad argument --chunking=",chunking,"should be 'paginated' or 'data_node' or 'std3'"
+        print("bad argument --chunking=",chunking,"should be 'paginated' or 'data_node' or 'std3'")
         logging.error(
             "bad argument --chunking=",chunking,"should be 'paginated' or 'data_node' or 'std3'")
     logging.info( "End of retracted.py.  numFound=%s, Nchanges=%s" % (numFound, Nchanges) )

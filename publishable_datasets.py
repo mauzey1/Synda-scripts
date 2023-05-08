@@ -35,7 +35,7 @@ def setup(db):
     global conn, curs
     # normal:
     conn = sqlite3.connect(db)  # typical db: '/var/lib/synda/sdt/sdt.db'
-    #                               or test db: '/home/mauzey1/db/sdt.db'
+    #                               or test db: '/home/syndausr/db/sdt.db'
     #curs = conn.cursor() now done at the time of curs.execute() ...
     #...safer to get the cursor when needed, and close it quickly: doesn't lock out other processes
 
@@ -95,7 +95,7 @@ def run_by_date( ending ):
         beginning = f.readline().strip()
     logging.info( "beginning=%s, ending=%s" % (beginning, ending) )
     if dryrun:
-        print "beginning=%s, ending=%s" % (beginning, ending)
+        print("beginning=%s, ending=%s" % (beginning, ending))
 
     # Get the new complete datasets from the database, and move them
     try:
@@ -130,7 +130,7 @@ def run_by_date( ending ):
     # If we didn't get here, the next time-based run will use the old beginning and recompute
     # whatever was missed this time.
     if dryrun:
-        print "Normally would write",ending,"to",sincewhen
+        print("Normally would write",ending,"to",sincewhen)
     else:
         with open(sincewhen,'w') as f:
             f.write( ending )
@@ -179,7 +179,7 @@ def move_and_record( three_paths, suffix ):
     failed_datasets = []
     if dryrun:
         for scrv,vnh,epbv in three_paths:
-            print "would move",scrv,"to",epbv
+            print("would move",scrv,"to",epbv)
     else:
         for scrv,vnh,epbv in three_paths:
             try:
@@ -230,7 +230,7 @@ def move_and_record( three_paths, suffix ):
         for path in [ pp[1] for pp in moved_datasets ]:
             f.write( "%s\n" % path )
     # owner only can read/write tmpfile:
-    chgrp_perms( tmpfile, group='mauzey1', permissions=(stat.S_IRUSR | stat.S_IWUSR ))
+    chgrp_perms( tmpfile, group='syndausr', permissions=(stat.S_IRUSR | stat.S_IWUSR ))
     if not dryrun:
         shutil.copy( tmpfile, os.path.dirname(failfile) ) # moved files; for logging
         shutil.move( tmpfile, os.path.dirname(outfile) )  # moved files; for publishing

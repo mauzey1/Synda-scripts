@@ -4,7 +4,7 @@
 
 from datetime import datetime, timedelta
 from pprint import pprint
-import sys, os, pdb
+import sys, os, pdb, subprocess
 import debug
 
 global inst, scheme, TransferLOG, start_timeN
@@ -19,9 +19,14 @@ DiscoveryLOG = '/var/log/synda/sdt/discovery.log' # LLNL standard
 def tail(f, n):
     """runs the operating system's 'tail', probably faster than
     doing it in Python"""
-    stdin,stdout = os.popen2("tail -n "+str(n)+" "+f)
-    stdin.close()
-    lines = stdout.readlines(); stdout.close()
+    cmd = "tail -n %d %s"%(n,f)
+    proc = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE)
+    lines = []
+    while True:
+        line = proc.stdout.readline()
+        if not line:
+            break
+        lines.append(line.decode("utf-8"))
     return lines
 
 def logsince( logfile, starttime, taillen=15123456 ):
@@ -228,84 +233,84 @@ if __name__ == '__main__':
         start_time = sys.argv[1]
     else:
         start_time = (datetime.now()-timedelta(days=start_timeN)).strftime('%Y-%m-%d %H:%m')
-    print "From",start_time,':'
+    print("From",start_time,':')
     sincelines = logsince( TransferLOG, start_time, taillen=15123456 )
-    print "searching", len(sincelines), "lines of transfer.log"
+    print("searching", len(sincelines), "lines of transfer.log")
     donecount, dn_done = transfer_done_counts(sincelines)
     knownerr, unknownerr, errdict, dn_errs, unknowns = transfer_error_counts(sincelines)
     fallbackcount, dn_fallback, fb_dict = transfer_fallback_counts(sincelines)
     
-    print "no. done files = ", donecount
-    print "no. error files =", knownerr+unknownerr
-    print "no. fallback files = ", fallbackcount
-    print "...done, error, and fallback file counts, broken down by data_node:"
+    print("no. done files = ", donecount)
+    print("no. error files =", knownerr+unknownerr)
+    print("no. fallback files = ", fallbackcount)
+    print("...done, error, and fallback file counts, broken down by data_node:")
     datanodes = list(set(dn_done.keys()) | set(dn_errs.keys()) | set(dn_fallback.keys()))
     datanodes.sort( key=(lambda dn: inst[dn] ) )
     for dn in datanodes:
-        if dn in dn_errs.keys():
+        if dn in list(dn_errs.keys()):
             errcount = sum(dn_errs[dn].values())
         else:
             errcount = 0
-        print '{:6.6} {:25.25} {:6d} {:6d} {:6d}'.format(
-            inst[dn], dn, dn_done.get(dn,0), errcount, dn_fallback.get(dn,0) )
+        print('{:6.6} {:25.25} {:6d} {:6d} {:6d}'.format(
+            inst[dn], dn, dn_done.get(dn,0), errcount, dn_fallback.get(dn,0) ))
 #    pprint(dn_done)
 
-    print "error counts by error type:"
-    for err in errdict.keys():
+    print("error counts by error type:")
+    for err in list(errdict.keys()):
         if errdict[err]>0:
-            print '  ','{:30.28} {:6d}'.format(err,errdict[err])
-    print  '  ','{:30.30} {:6d}'.format('unknown',unknownerr)
+            print('  ','{:30.28} {:6d}'.format(err,errdict[err]))
+    print('  ','{:30.30} {:6d}'.format('unknown',unknownerr))
 #    pprint( errdict )
 
-    print "...same errors, but broken down by data_node:"
+    print("...same errors, but broken down by data_node:")
     # formerly this was "for dn in dn_errs.keys()", but I want the output sorted by datanodes...
     for dn in datanodes:
-        if dn not in dn_errs.keys():
+        if dn not in list(dn_errs.keys()):
             continue
         errsum = sum(dn_errs[dn].values())
-        print "{:6.6} {:.<40.40}{:.>6d}".format( inst[dn], dn, errsum )
+        print("{:6.6} {:.<40.40}{:.>6d}".format( inst[dn], dn, errsum ))
 #        print "{}{:6d}".format(dn,errsum)
 #        print dn, ' ', sum(dn_errs[dn].values())
         for err in dn_errs[dn]:
-            print '  ','{:30.30} {:5d}'.format(err,dn_errs[dn][err])
+            print('  ','{:30.30} {:5d}'.format(err,dn_errs[dn][err]))
 #            print '   ',err,dn_errs[dn][err]
-    print "sample lines with unknown errors:"
+    print("sample lines with unknown errors:")
     pprint( unknowns[0:4] )
 
-    print "\nfallback counts by original url and destination:"
+    print("\nfallback counts by original url and destination:")
     for dn in datanodes:
-        if dn not in fb_dict.keys():
+        if dn not in list(fb_dict.keys()):
             continue
         fbsum = sum(fb_dict[dn].values())
-        print "{:6.6} {:.<40.40}{:.>6d}".format( inst[dn], dn, fbsum )
+        print("{:6.6} {:.<40.40}{:.>6d}".format( inst[dn], dn, fbsum ))
         for fb in fb_dict[dn]:
-            print '  ','{:30.30} {:5d}'.format(fb,fb_dict[dn][fb])
+            print('  ','{:30.30} {:5d}'.format(fb,fb_dict[dn][fb]))
 #    pprint( fb_dict )
 
-    print "\nretraction summary since %s:"%start_time
+    print("\nretraction summary since %s:"%start_time)
     ret_counts, exceptions = retraction_counts(start_time)
     for retc in ret_counts:
         # Note retc ends with a newline, print ends with another newline which we don't need.
         sys.stdout.write( retc )
     sys.stdout.flush()
-    print " %s exceptions" % len(exceptions)
+    print(" %s exceptions" % len(exceptions))
 
-    print "\ntransfer errors:"
+    print("\ntransfer errors:")
     terrors = interesting_transfer_errors( sincelines )
     if len(terrors)==0:
-        print "None"
+        print("None")
     else:
         for line in terrors:
-            print line
+            print(line)
 
-    print "\ndiscovery errors:"
+    print("\ndiscovery errors:")
     disclines = logsince( DiscoveryLOG, start_time, taillen=1234000 )
     #...The last 123000 lines of discovery.log might cover a week if we're not too busy.
     # The last 1234000 lines is safe.
-    print "searching", len(disclines), "lines"
+    print("searching", len(disclines), "lines")
     terrors = interesting_discovery_errors( disclines )
     if len(terrors)==0:
-        print "None"
+        print("None")
     else:
         for line in terrors:
-            print line
+            print(line)
