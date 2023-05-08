@@ -35,7 +35,7 @@ def setup():
         timeout = 12000  # in seconds; i.e. 200 minutes
         conn = sqlite3.connect( '/var/lib/synda/sdt/sdt.db', timeout )
         # test on a temporary copy of the database:
-        #conn = sqlite3.connect( '/home/mauzey1/db/sdt.db', timeout )
+        #conn = sqlite3.connect( '/home/syndausr/db/sdt.db', timeout )
 
 def finish():
     """Closes connections to databases, etc."""
@@ -85,16 +85,8 @@ def file_retracted_status( file_id, suffix='retracted' ):
     elif status=='running':
         # This is the most likely of the cases where another process wants to change the status too.
         raise Exception("running file, try again later")
-    elif status[0:4]=='done':
-        newstatus = 'done,'+suffix
-    elif status[0:5]=='error' or status=='waiting' or status=='obsolete' or status[0]=='_':
-        # All of these are data we don't have.  A status beginning with '_' is a temporary
-        # status set manually.
-        newstatus = suffix
-    elif status[0:9]=='published':
-        newstatus = 'published,'+suffix
     else:
-        newstatus = status+','+suffix
+        newstatus = suffix
     if status==newstatus:
         #print "From file_id", file_id, "results=", results, "status=",status
         return
@@ -203,7 +195,7 @@ def dataset_retracted_status( dataset_fid, suffix='retracted' ):
     if len(results)==1:
         status = results[0][0]    # e.g. 'complete'
         if status.find(suffix)<0:
-            new_status = status + ','+suffix
+            new_status = suffix
             cmd = "UPDATE dataset SET status='%s' WHERE dataset_functional_id='%s'" %\
                   (new_status,dataset_fid)
             try:
@@ -302,8 +294,8 @@ if __name__ == '__main__':
             # sys.argv[1] should be or the name of a file listing retracted datasets
             status_retracted( sys.argv[1], suffix )
     else:
-        print "please provide an input file, containing a list of retracted datasets"
-        print "Or start with the keyword 'file', and continue with the name of a file"+\
-            "containing a list of retracted files"
-        print "Optionally, you can supply a final argument, the suffix to be added to"+\
-            " status names."
+        print("please provide an input file, containing a list of retracted datasets")
+        print("Or start with the keyword 'file', and continue with the name of a file"+\
+            "containing a list of retracted files")
+        print("Optionally, you can supply a final argument, the suffix to be added to"+\
+            " status names.")

@@ -7,7 +7,6 @@ If it is the first of the month, the backup file will be made read-only."""
 import sys, os, shutil, stat, grp
 import socket, datetime, subprocess
 import sqlite3
-import sqlitebck
 import pdb, debug
 
 std_file_perms = stat.S_IRUSR | stat.S_IWUSR | stat.S_IRGRP | stat.S_IWGRP | stat.S_IROTH 
@@ -34,10 +33,7 @@ with dstcon:
     # Back up from source to dest, one page at a time.  Break the source file into
     # 100 pages and allow 0.25 seconds between them so that other processes have
     # some access to the database.
-# When a recent Python 3.7 is available, this will be the best solution:
-#    srccon.backup( dstcon, pages=100, sleep=0.25 )
-# But for now this is it.  The pages and sleep options are documented, but they don't work for me:
-    sqlitebck.copy( srccon, dstcon )
+    srccon.backup( dstcon, pages=100, sleep=0.25 )
 dstcon.close()
 srccon.close()
 

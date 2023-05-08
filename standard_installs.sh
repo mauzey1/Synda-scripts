@@ -4,8 +4,6 @@
 # also everything of day or 6hr frequency (not 6hrPlev) for selected nodes,
 # and all the "high priority" CMIP6 data.
 
-source /home/mauzey1/.bash_profile
-
 export LOGFILE=/var/log/synda/install/install-`date -d sunday --iso-8601=date`.log
 #...was export LOGFILE=/var/log/synda/install/install.log
 echo >> $LOGFILE 2>&1
@@ -90,15 +88,8 @@ echo y | synda install -i --timestamp_right_boundary $TODATE -s ~/selection_file
 echo `date --iso-8601=minutes` 'CREATE-IP (reanalysis)' >> $LOGFILE 2>&1
 echo y | synda install -i --timestamp_right_boundary $TODATE -s ~/selection_files/CREATE-IP_all_2020.08.05.txt>> $LOGFILE 2>&1
 
-# mark obsolete files
-echo `date --iso-8601=minutes` "marking obsolete files" >> $LOGFILE 2>&1
-sqlite3 /var/lib/synda/sdt/sdt.db ".read /home/mauzey1/scripts/obsolete.sql" >> $LOGFILE 2>&1
-
 # End
 echo `date --iso-8601=minutes` "end standard_installs_v3.sh" >> $LOGFILE 2>&1
 echo >> $LOGFILE 2>&1
-
-#echo "extra installs..."
-#/home/mauzey1/scripts/extra_installs.sh
 
 

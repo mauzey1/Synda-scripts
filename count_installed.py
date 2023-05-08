@@ -45,15 +45,15 @@ def run( infile ):
     szTB = sum(map(eval,szsTB))
     assert( len(szs) == len(szsKB)+len(szsMB)+len(szsGB)+len(szsTB) )
     sz = Kval*szKB + Mval*szMB + Gval*szGB + Tval*szTB
-    print "Total size installed =", bytecount_for_people(sz)
+    print("Total size installed =", bytecount_for_people(sz))
 
     cts = [ l.replace(' file(s) will be added to the download queue.\n', '') for l in ctlines ]
     ct = sum(map(eval,cts))
-    print "Total number of files installed =", ('{:,}').format(ct)
+    print("Total number of files installed =", ('{:,}').format(ct))
 
 if __name__ == '__main__':
     if len( sys.argv ) > 1:
         installlog = sys.argv[1]
         run( installlog )
     else:
-        print "Supply the installation log file"
+        print("Supply the installation log file")

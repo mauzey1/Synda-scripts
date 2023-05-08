@@ -1,21 +1,10 @@
 #!/bin/bash
-#
-# This script starts the Synda (sdt) daemon, if it had died.
-# Then it stops the daemon to get some cleanup (which is occasionally necessary to prevent stalls).
-# Then it starts the daemon again.
-# This script is suitable for being called by cron.
-# The use of systemctl works for Red Hat 7, not Red Hat 6.
 
-source /home/mauzey1/.bash_profile
+LOG_DIR=/var/log/synda/daemon/
 
-if pgrep -f sddaemon > /dev/null 2>&1
+if synda daemon status | grep -q 'Daemon not running'
   then
-    #echo `date` ok >> /var/log/synda/daemon/daemon_start.log 2>&1
-    # The "ok" logging isn't needed now that I know that this is working.  Use a no-op instead:
     :
-  else
-    echo `date` starting daemon >> /var/log/synda/daemon/daemon_start.log 2>&1
-    sudo /usr/bin/systemctl start synda >> /var/log/synda/daemon/daemon_start.log 2>&1
-    sudo /usr/bin/systemctl stop synda >> /var/log/synda/daemon/daemon_start.log 2>&1
-    sudo /usr/bin/systemctl start synda >> /var/log/synda/daemon/daemon_start.log 2>&1
+    echo `date` starting daemon >> $LOG_DIR/daemon_start.log 2>&1
+    synda daemon start >> $LOG_DIR/daemon_start.log 2>&1
   fi
