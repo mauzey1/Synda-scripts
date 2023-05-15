@@ -18,7 +18,7 @@ def get_synda_queue_info(db):
 
 def main():
 
-    with open('db_backups_list_copy.json') as f:
+    with open('db_backups_list.json') as f:
         db_files = json.load(f)
 
     db_status_history = {}
