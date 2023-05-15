@@ -34,7 +34,7 @@ def confirm_yesnoquit():
     no = {'no','n'}
     quits = {'quit','q'}
 
-    choice = raw_input().lower()  # in Python 3, this is input().lower()
+    choice = input().lower()
     if choice in yes:
         return True
     elif choice in no:
@@ -104,23 +104,23 @@ def mark_permanent_errors( min_interval=5, nrepeats=3, dryrun=True, confirm=True
         if new_status is not None:
             if dryrun:
                 # print, don't log.  This is a debugging mode.
-                print "file %s is ready for permanent error status as %s"%(filename,new_status)
-                print "  error_history=%s"%error_history
+                print("file %s is ready for permanent error status as %s"%(filename,new_status))
+                print("  error_history=%s"%error_history)
             elif confirm:
                 # Change the error status, but with user confirmation file-by-file
                 # A filename may have multiple versions, but it's more understandable than file_id.
-                print "change %s from status 'error' to '%s'?"%(filename,new_status)
+                print("change %s from status 'error' to '%s'?"%(filename,new_status))
                 yesnoquit = confirm_yesnoquit()
                 if yesnoquit==True:
                     cmd = "UPDATE file SET status=? WHERE file_id=?"
                     cmd_vars = ( new_status, file_id )
                     curs.execute( cmd, cmd_vars )
-                    print "changed status to '%s'" % new_status
+                    print("changed status to '%s'" % new_status)
                     logging.info( "changed status of %s to '%s'" % (filename, new_status) )
                 elif yesnoquit==False:
-                    print "leaving status at 'error'"
+                    print("leaving status at 'error'")
                 else:
-                    print "leaving status at 'error' for this and subsequent files"
+                    print("leaving status at 'error' for this and subsequent files")
                     break
             else:
                 # Change the error status, without asking for confirmation.
