@@ -18,7 +18,7 @@ def get_synda_queue_info(db):
 
 def main():
 
-    with open('db_backups_list.json') as f:
+    with open('db_backups_list_copy.json') as f:
         db_files = json.load(f)
 
     db_status_history = {}
@@ -37,12 +37,13 @@ def main():
 
         db_status_history[timestamp] = db_status_dict
 
-        # Print status dictionary to stdout so that the script can be restarted
-        # from a stopping point without losing data prior to that point
-        print(json.dumps({timestamp:db_status_dict}, indent=4))
-
-    with open('db_status_history.json', 'w') as stats_file:
-        stats_file.write(json.dumps(db_status_history, indent=4))
+        db_status_filename = os.path.basename(db_path) + '.json'
+        outpath = 'db_status_files'
+        if not os.path.exists(outpath):
+            os.makedirs(outpath)
+        db_status_filepath = os.path.join(outpath, db_status_filename)
+        with open(db_status_filepath, 'w') as db_status_file:
+            db_status_file.write(json.dumps({timestamp: db_status_dict}, indent=4))
 
 if __name__ == '__main__':
     main()
