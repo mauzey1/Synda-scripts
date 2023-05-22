@@ -91,7 +91,7 @@ def process_report_log(log_file, output, remap_statuses=False):
                 log_dict[timestamp] = {s[0]:dict(file_count=int(s[1]), size=s[2]) for s in synda_queue_match}
 
         with open(output, 'w') as stats_file:
-            stats_file.write(json.dumps(dict(synda_queue_stats=log_dict), indent=4))
+            stats_file.write(json.dumps(log_dict, indent=4))
 
 if __name__ == '__main__':
 

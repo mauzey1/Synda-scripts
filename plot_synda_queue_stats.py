@@ -36,7 +36,7 @@ def gen_plot(data_file, status, start_date, end_date, ymin=None, ymax=None, outp
     date_format = '%Y-%m-%dT%H:%M:%SZ'
     datetimes = []
     data_footprint = []
-    for timestamp, statuses in synda_queue_data['synda_queue_stats'].items():
+    for timestamp, statuses in synda_queue_data.items():
         if status in statuses:
             dt = datetime.datetime.strptime(timestamp, date_format)
             df = human_read_to_bytes(statuses[status]['size'])
@@ -89,7 +89,7 @@ def gen_stacked_area_chart(data_file, start_date, end_date, ymin=None, ymax=None
     date_format = '%Y-%m-%dT%H:%M:%SZ'
     datetimes = []
     data_footprint = { s:[] for s in status_list }
-    for timestamp, statuses in synda_queue_data['synda_queue_stats'].items():
+    for timestamp, statuses in synda_queue_data.items():
         dt = datetime.datetime.strptime(timestamp, date_format)
         datetimes.append(dt)
         for status in status_list:
@@ -142,7 +142,7 @@ def main():
         description="Gather data footprint per day from ESGF")
     parser.add_argument("--file", "-f", dest="data_file", type=str,
                         default=None, help="JSON file containing file counts and storage sizes along time for each status")
-    parser.add_argument("--stacked_chart", "-rs", action="store_true",
+    parser.add_argument("--stacked_chart", "-sc", action="store_true",
                         help="Create a stacked area chart of all statuses in the JSON file (default is false)" )
     parser.add_argument("--status", "-s", dest="status", type=str,
                         default="published", help="Synda status to plot (default is 'published')")
