@@ -95,7 +95,7 @@ def gen_stacked_area_chart(data_file, start_date, end_date, ymin=None, ymax=None
         for status in status_list:
             if status in statuses:
                 df = human_read_to_bytes(statuses[status]['size'])
-                df /= (10**12)
+                df /= (10**15) # Convert to petabytes
                 data_footprint[status].append(df)
             else:
                 data_footprint[status].append(0)
@@ -113,7 +113,7 @@ def gen_stacked_area_chart(data_file, start_date, end_date, ymin=None, ymax=None
 
     @ticker.FuncFormatter
     def major_formatter(x, pos):
-        return "%.2f TB" % x
+        return "%.2f PB" % x
 
     labels = []
     data_footprint_list = []
