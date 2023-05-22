@@ -113,7 +113,7 @@ def gen_stacked_area_chart(data_file, start_date, end_date, ymin=None, ymax=None
 
     @ticker.FuncFormatter
     def major_formatter(x, pos):
-        return "%.2f PB" % x
+        return "%.0f PB" % x
 
     labels = []
     data_footprint_list = []
@@ -122,15 +122,15 @@ def gen_stacked_area_chart(data_file, start_date, end_date, ymin=None, ymax=None
         data_footprint_list.append(df)
 
     ax.stackplot(datetimes, data_footprint_list, labels=labels)
-    ax.legend(loc='upper left')
+    ax.legend(title='File Status',loc='upper left')
 
     ylim_min = ymin if ymin else numpy.min(data_footprint_list)
     ylim_max = ymax if ymax else numpy.sum(data_footprint_list, axis=0).max()
     ax.set(xlim=(start_date, end_date), ylim=(ylim_min, ylim_max))
 
-    title = "Dataset file statuses on Synda".format(status)
+    title = "Data Footprint of Files on Synda".format(status)
 
-    ax.set(xlabel='date', ylabel='data footprint', title=title)
+    ax.set(xlabel='Date', ylabel='Data Footprint', title=title)
     ax.yaxis.set_major_formatter(major_formatter)
     ax.grid()
 
