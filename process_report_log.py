@@ -51,7 +51,7 @@ def status_remap(status):
     else:  # various statuses that only briefly occurred in early replication
         return "miscellaneous"
 
-def process_report_log(log_file, output, remap_statuses=False):
+def process_report_log(log_file, output, db_stats_file=None, remap_statuses=False):
 
     # Log entries are composed of a timestamp line followed by a line for the command 'synda queue'.
     # The output of 'synda queue' appears between the "status count size" header and a call to the script synda-perf.py.
@@ -89,9 +89,15 @@ def process_report_log(log_file, output, remap_statuses=False):
                 log_dict[timestamp] = statuses
             else:
                 log_dict[timestamp] = {s[0]:dict(file_count=int(s[1]), size=s[2]) for s in synda_queue_match}
+            
+            if db_stats_file is not None:
+                db_stats_data = json.load(open(db_stats_file,'r'))
+                log_dict.update(db_stats_data)
+            
+            log_dict_sorted = {k: v for k, v in sorted(log_dict.items(), key=lambda item: item[0])}
 
         with open(output, 'w') as stats_file:
-            stats_file.write(json.dumps(log_dict, indent=4))
+            stats_file.write(json.dumps(log_dict_sorted, indent=4))
 
 if __name__ == '__main__':
 
@@ -103,6 +109,9 @@ if __name__ == '__main__':
     p.add_argument( "--log_file", "-l", required=False,
                     help="Path of log file",
                     default="/var/log/synda/reports.log" )
+    p.add_argument( "--db_stats_file", "-ds", required=False,
+                    help="Path of JSON file containing database stats made prior to the report log.  Used to supplement the output with past data.",
+                    default=None )
     p.add_argument( "--output", "-o", required=False,
                     help="Path of output JSON file",
                     default="synda_queue_stats.json" )
@@ -112,9 +121,12 @@ if __name__ == '__main__':
     if not os.path.isfile(args.log_file):
         print("%s is not a file"%(args.log_file))
 
+    if args.db_stats_file is not None and not os.path.isfile(args.db_stats_file):
+        print("%s is not a file"%(args.log_file))
+
     if os.path.isdir(args.output):
         output = os.path.join(args.output, "synda_queue_stats.json")
     else:
         output = args.output
 
-    process_report_log(args.log_file, output, args.remap_statuses)
+    process_report_log(args.log_file, output, args.db_stats_file, args.remap_statuses)
