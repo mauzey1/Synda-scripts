@@ -66,7 +66,6 @@ def mark_completed_datasets(db, dry_run=False):
 if __name__ == '__main__':
     logfile = '/p/css03/scratch/logs/mark_completed_datasets.log'
     logging.basicConfig( filename=logfile, level=logging.INFO, format='%(asctime)s %(message)s' )
-    logging.info( "starting" )
 
     p = argparse.ArgumentParser(
         description="Change the status of datasets that have all of their files with the status 'done' " \
@@ -82,6 +81,7 @@ if __name__ == '__main__':
         logging.info( "DRY RUN" )
 
     try:
+        logging.info( "starting" )
         mark_completed_datasets(args.database, args.dryrun)
     except:
         sys.exit(1)
