@@ -32,7 +32,7 @@ def mark_completed_datasets(db, dry_run=False):
         curs.execute(query)
         results = curs.fetchone()
         dataset_count = results[0]
-        logging.info( f"Found {dataset_count} to be marked 'completed." )
+        logging.info( f"Found {dataset_count} to be marked 'completed'" )
     except Exception as e:
         logging.error( "Exception in mark_completed_datasets: %s" %e )
         raise e
@@ -59,6 +59,7 @@ def mark_completed_datasets(db, dry_run=False):
         finally:
             curs.close()
 
+    logging.info( "Done" )
     conn.commit()
     conn.close()
 
