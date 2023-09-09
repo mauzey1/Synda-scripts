@@ -12,6 +12,7 @@ import sys
 import argparse
 import sqlite3
 import logging
+from datetime import datetime
 
 
 def mark_completed_datasets(db, dry_run=False):
@@ -41,15 +42,17 @@ def mark_completed_datasets(db, dry_run=False):
 
     if not dry_run:
         try:
+            latest_date = datetime.today().strftime('%Y-%m-%d %H:%M:%S.%f')
+
             cmd = """
-                    UPDATE dataset SET status='complete' WHERE dataset_id IN (
+                    UPDATE dataset SET status='complete',latest='{latest_date}' WHERE dataset_id IN (
                         SELECT f.dataset_id FROM file AS f
                         INNER JOIN dataset AS d ON f.dataset_id=d.dataset_id
                         WHERE d.crea_date>'2023-07-27' AND d.status='empty'
                         GROUP BY f.dataset_id
                         HAVING COUNT(*) = COUNT(CASE WHEN f.status = 'done' then 1 end)
                     );
-                """
+                """.format(latest_date=latest_date)
             curs = conn.cursor()
             curs.execute( cmd )
             conn.commit()
