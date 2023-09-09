@@ -77,11 +77,12 @@ if __name__ == '__main__':
 
     args = p.parse_args( sys.argv[1:] )
 
-    if args.dryrun==True:
-        logging.info( "DRY RUN" )
+    if args.dryrun:
+        logging.info( "Starting dry run" )
+    else:
+        logging.info( "Starting" )
 
     try:
-        logging.info( "starting" )
         mark_completed_datasets(args.database, args.dryrun)
     except:
         sys.exit(1)
