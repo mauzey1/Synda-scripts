@@ -45,7 +45,7 @@ def mark_completed_datasets(db, dry_run=False):
             latest_date = datetime.today().strftime('%Y-%m-%d %H:%M:%S.%f')
 
             cmd = """
-                    UPDATE dataset SET status='complete',latest='{latest_date}' WHERE dataset_id IN (
+                    UPDATE dataset SET status='complete',latest_date='{latest_date}' WHERE dataset_id IN (
                         SELECT f.dataset_id FROM file AS f
                         INNER JOIN dataset AS d ON f.dataset_id=d.dataset_id
                         WHERE d.crea_date>'2023-07-27' AND d.status='empty'
@@ -53,6 +53,7 @@ def mark_completed_datasets(db, dry_run=False):
                         HAVING COUNT(*) = COUNT(CASE WHEN f.status = 'done' then 1 end)
                     );
                 """.format(latest_date=latest_date)
+            logging.info(cmd)
             curs = conn.cursor()
             curs.execute( cmd )
             conn.commit()
@@ -68,7 +69,7 @@ def mark_completed_datasets(db, dry_run=False):
 
 
 if __name__ == '__main__':
-    logfile = '/p/css03/scratch/logs/mark_completed_datasets.log'
+    logfile = 'mark_completed_datasets.log'
     logging.basicConfig( filename=logfile, level=logging.INFO, format='%(asctime)s %(message)s' )
 
     p = argparse.ArgumentParser(
