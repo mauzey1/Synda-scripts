@@ -53,7 +53,6 @@ def mark_completed_datasets(db, dry_run=False):
                         HAVING COUNT(*) = COUNT(CASE WHEN f.status = 'done' then 1 end)
                     );
                 """.format(latest_date=latest_date)
-            logging.info(cmd)
             curs = conn.cursor()
             curs.execute( cmd )
             conn.commit()
