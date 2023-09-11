@@ -68,7 +68,7 @@ def mark_completed_datasets(db, dry_run=False):
 
 
 if __name__ == '__main__':
-    logfile = 'mark_completed_datasets.log'
+    logfile = '/p/css03/scratch/logs/mark_completed_datasets.log'
     logging.basicConfig( filename=logfile, level=logging.INFO, format='%(asctime)s %(message)s' )
 
     p = argparse.ArgumentParser(
