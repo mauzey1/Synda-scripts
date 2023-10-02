@@ -30,10 +30,7 @@ dest = '/p/css03/painter/db/' + tf
 srccon = sqlite3.connect(source)
 dstcon = sqlite3.connect(dest)
 with dstcon:
-    # Back up from source to dest, one page at a time.  Break the source file into
-    # 100 pages and allow 0.25 seconds between them so that other processes have
-    # some access to the database.
-    srccon.backup( dstcon, pages=100, sleep=0.25 )
+    srccon.backup( dstcon )
 dstcon.close()
 srccon.close()
 
