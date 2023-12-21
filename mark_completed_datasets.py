@@ -15,20 +15,22 @@ import logging
 from datetime import datetime
 
 
-def mark_completed_datasets(db, dry_run=False):
+def mark_completed_datasets(db, start_date, dry_run=False):
     timeout = 12000  # in seconds; i.e. 200 minutes
     conn = sqlite3.connect( db, timeout )
+
+    start_date_str = datetime.strftime(start_date, '%Y-%m-%d')
 
     try:
         query = """
                 SELECT COUNT(*) FROM dataset WHERE dataset_id IN (
                     SELECT f.dataset_id FROM file AS f
                     INNER JOIN dataset AS d ON f.dataset_id=d.dataset_id
-                    WHERE d.crea_date>'2023-07-27' AND d.status='empty'
+                    WHERE d.crea_date>'{start_date}' AND d.status='empty'
                     GROUP BY f.dataset_id
                     HAVING COUNT(*) = COUNT(CASE WHEN f.status = 'done' then 1 end)
                 );
-                """
+                """.format(start_date=start_date_str)
         curs = conn.cursor()
         curs.execute(query)
         results = curs.fetchone()
@@ -48,11 +50,11 @@ def mark_completed_datasets(db, dry_run=False):
                     UPDATE dataset SET status='complete',latest_date='{latest_date}' WHERE dataset_id IN (
                         SELECT f.dataset_id FROM file AS f
                         INNER JOIN dataset AS d ON f.dataset_id=d.dataset_id
-                        WHERE d.crea_date>'2023-07-27' AND d.status='empty'
+                        WHERE d.crea_date>'{start_date}' AND d.status='empty'
                         GROUP BY f.dataset_id
                         HAVING COUNT(*) = COUNT(CASE WHEN f.status = 'done' then 1 end)
                     );
-                """.format(latest_date=latest_date)
+                """.format(start_date=start_date_str, latest_date=latest_date)
             curs = conn.cursor()
             curs.execute( cmd )
             conn.commit()
@@ -78,8 +80,15 @@ if __name__ == '__main__':
     p.add_argument( "--dryrun", required=False, action="store_true" )
     p.add_argument( "--database", required=False, help="a Synda database",
                     default="/var/lib/synda/sdt/sdt.db" )
+    p.add_argument( "--start_date", required=False, help="starting date for finding datasets based on their creation date",
+                    default="2023-07-27" )
 
     args = p.parse_args( sys.argv[1:] )
+
+    try:
+        start_date = datetime.strptime(args.start_date, '%Y-%m-%d')
+    except ValueError as e:
+        raise e
 
     if args.dryrun:
         logging.info( "Starting dry run" )
@@ -87,7 +96,7 @@ if __name__ == '__main__':
         logging.info( "Starting" )
 
     try:
-        mark_completed_datasets(args.database, args.dryrun)
+        mark_completed_datasets(args.database, start_date, args.dryrun)
     except:
         sys.exit(1)
 
