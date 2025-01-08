@@ -67,12 +67,10 @@ def process_report_log(log_file,
                        remap_statuses=False):
 
     # Log entries are composed of a timestamp line followed by a line for
-    # the command 'synda queue'. The output of 'synda queue' appears between
-    # the "status count size" header and a call to the script synda-perf.py.
+    # the command 'synda queue'. The "status count size" stats output
+    # appears between 'synda queue' and a call to the script synda-perf.py.
     timestamp_pattern = (r"(\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}Z)\n"
                          r"synda queue\n"
-                         r"(.*?)"
-                         r"status\s+count\s+size\n"
                          r"(.*?)"
                          r"/scripts/synda-perf.py")
 
@@ -85,19 +83,30 @@ def process_report_log(log_file,
         log_dict = {}
         for entry in log_entries:
             timestamp = entry[0]
-            synda_section = entry[2]
+            synda_section = entry[1]
+
+            synda_queue_pattern = (r"status\s+count\s+size\n"
+                                   r"(.*?)\Z")
+
+            synda_queue_matches = re.findall(synda_queue_pattern,
+                                             synda_section,
+                                             re.DOTALL | re.MULTILINE)
+
+            if len(synda_queue_matches) < 1:
+                continue
 
             # 'synda queue' reports the file count and storage size
             # (in human-readable decimal units) per download status
-            queue_pattern = (r"(.*?)\s+"
+            stats_pattern = (r"(.*?)\s+"
                              r"(.*?)\s+"
                              r"(.*? (Byte|Bytes|kB|MB|GB|TB|PB|EB|ZB|YB))\n")
-            synda_queue_match = re.findall(queue_pattern, synda_section,
+            synda_queue_stats = re.findall(stats_pattern,
+                                           synda_queue_matches[0],
                                            re.DOTALL | re.MULTILINE)
 
             if remap_statuses:
                 statuses = {}
-                for s in synda_queue_match:
+                for s in synda_queue_stats:
                     status = status_remap(s[0])
                     file_count = int(s[1])
                     size = human_read_to_bytes(s[2])
@@ -114,17 +123,17 @@ def process_report_log(log_file,
             else:
                 log_dict[timestamp] = {
                     s[0]: dict(file_count=int(s[1]), size=s[2])
-                    for s in synda_queue_match
+                    for s in synda_queue_stats
                     }
 
-            if db_stats_file is not None:
-                db_stats_data = json.load(open(db_stats_file, 'r'))
-                log_dict.update(db_stats_data)
+        if db_stats_file is not None:
+            db_stats_data = json.load(open(db_stats_file, 'r'))
+            log_dict.update(db_stats_data)
 
-            log_dict_sorted = {
-                k: v
-                for k, v in sorted(log_dict.items(), key=lambda item: item[0])
-                }
+        log_dict_sorted = {
+            k: v
+            for k, v in sorted(log_dict.items(), key=lambda item: item[0])
+            }
 
         with open(output, 'w') as stats_file:
             stats_file.write(json.dumps(log_dict_sorted, indent=4))
