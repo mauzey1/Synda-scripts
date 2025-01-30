@@ -91,7 +91,7 @@ echo y | synda install -i --timestamp_right_boundary $TODATE -s ~/selection_file
 # Mark 'waiting' or 'error' files as 'obsolete' if a newer version of them exists
 # This prevents Synda from downloading them
 echo `date --iso-8601=minutes` "marking obsolete files" >> $LOGFILE 2>&1
-sqlite3 /var/lib/synda/sdt/sdt.db ".read /home/syndausr/scripts/obsolete.sql" >> $LOGFILE 2>&
+sqlite3 /var/lib/synda/sdt/sdt.db ".read /home/syndausr/scripts/obsolete.sql" >> $LOGFILE 2>&1
 
 # End
 echo `date --iso-8601=minutes` "end standard_installs_v3.sh" >> $LOGFILE 2>&1
